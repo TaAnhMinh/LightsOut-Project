@@ -1,0 +1,347 @@
+
+/**
+ * The class <b>Solution</b> is used
+ * to store a (partial) solution to the game
+ *
+ * @author Ta Anh Minh, 300078762, University Of Ottawa
+ */
+public class Solution {
+
+
+	private Object [][] solution;
+	private int [][] valid;
+    /**
+     * Constructor. Creates an instance of Solution
+     * for a board of size <b>widthxheight</b>. That
+     * solution does not have any board position
+     * value explicitly specified yet.
+     *
+     * @param width
+     *  the width of the board
+     * @param height
+     *  the height of the board
+     */
+    public Solution(int width, int height) {
+    	if (width > 1 && height > 1 ) {
+    		solution = new Object[height][width];
+    		valid = new int [solution.length][solution[0].length];
+
+    	} else {
+    		if (width < 2) {
+    			System.out.println("Invalid width, using default ...");
+    		}
+    		if (height < 2) {
+    			System.out.println("Invalid height, using default ...");
+    		}
+    		solution = new Object[3][3];
+    		valid = new int [3][3];
+    	}
+    }
+
+   /**
+     * Constructor. Creates an instance of Solution
+     * which is a deep copy of the instance received
+     * as parameter.
+     *
+     * @param other
+     *  Instance of solution to deep-copy
+     */
+    public Solution (Solution other) {
+		solution = new Object[other.solution.length][other.solution[0].length];
+  	  	for (int i =0; i < solution.length; i++) {
+  	  		for (int z = 0; z < solution[0].length; z++) {
+  	  			solution[i][z] = other.solution[i][z];
+  	  		}
+  	  	}
+  	    valid = new int [solution.length][solution[0].length];
+  	  	Height = other.Height;
+  	  	Width = other.Width;
+    }
+
+
+    /**
+     * returns <b>true</b> if and only the parameter
+     * <b>other</b> is referencing an instance of a
+     * Solution which is the ``same'' as  this
+     * instance of Solution (its board as the same
+     * values and it is completed to the same degree)
+     *
+     * @param other
+     *  referenced object to compare
+     */
+
+    public boolean equals (Object other){
+
+    	if (other == null) {
+    		return false;
+    	}
+
+    	if (other.getClass() != this.getClass()) {
+    		return false;
+    	}
+
+    	Solution wow = (Solution) other;
+    	if (this.solution != wow.solution ) {
+    		return false;
+    	}
+    	return true;
+    }
+
+
+    /**
+    * returns <b>true</b> if the solution
+    * has been entirely specified
+    *
+    * @return
+    * true if the solution is fully specified
+    */
+    public boolean isReady(){
+    	for (int i = 0 ; i < solution.length; i++) { // i is height
+			for (int o = 0; o < solution[0].length; o++) { // o is width
+				if (solution[i][o] == null) {
+					return false;
+				}
+			}
+    	}
+        return true;
+    }
+
+    /**
+    * specifies the ``next'' value of the
+    * solution.
+    * The first call to setNext specifies
+    * the value of the board location (1,1),
+    * the second call specifies the value
+    *  of the board location (1,2) etc.
+    *
+    * If <b>setNext</b> is called more times
+    * than there are positions on the board,
+    * an error message is printed out and the
+    * call is ignored.
+    *
+    * @param nextValue
+    *  the boolean value of the next position
+    *  of the solution
+    */
+    int Height = 0;
+    int Width = 0;
+	public void setNext(boolean nextValue) {
+    	if (Height < solution.length) {
+			solution[Height][Width] = nextValue;
+			if (Width >= solution[0].length-1) {
+				Height++;
+				Width = 0;
+			} else {
+				Width++;
+			}
+		} else {
+			System.out.println("No more positions on the board left to set");
+		}
+    }
+
+    /**
+    * returns <b>true</b> if the solution is completely
+    * specified and is indeed working, that is, if it
+    * will bring a board of the specified dimensions
+    * from being  entirely ``off'' to being  entirely
+    * ``on''.
+    *
+    * @return
+    *  true if the solution is completely specified
+    * and works
+    */
+
+	public boolean isSuccessful() {
+    	for (int m= 0; m < valid.length ; m++) {
+			for (int n = 0; n < valid[0].length; n++) {
+				valid[m][n] = 0;
+			}
+		}
+
+    	if (isReady()) { // if ready means that all the parameters are filled
+    		for (int i =0; i < valid.length; i ++) { // i is height
+    			for (int z =0; z< valid[0].length; z++) {	// z is width
+    				if (solution[i][z].equals(true)) {
+    					valid[i][z]++;
+	    				if (i == 0 && z == solution[0].length -1) { // top right hand corner
+	    					valid[i+1][z]++; 													// below
+	    					valid[i][z-1]++;													 // left
+	    				}else if ( i == 0 && z ==0) {
+	    					valid[i+1][z]++; 													// below
+	    					valid[i][z+1]++; 													// right
+	    				} else if (i == solution.length -1 && z == 0) {// bottom left
+	    					valid[i-1][z]++; 													// above
+	    					valid[i][z+1]++; 													// right
+	    				} else if (i == solution.length-1 && z == solution[0].length -1) { // bottom right
+    						valid[i-1][z]++; 													// above
+    						valid[i][z-1]++; 													// left
+    					} else if (z == 0 && i > 0 && i < solution.length) { // rows between top left and bottom left
+    						valid[i-1][z]++; 													// above
+    						valid[i][z+1]++; 													// right
+    						valid[i+1][z]++; 													// below
+    					} else if (z == solution[0].length -1 && i > 0 && i < solution.length) { // rows between top right and bottom right
+    						valid[i-1][z]++; 													// above
+    						valid[i][z-1]++; 													// left
+    						valid[i+1][z]++; 													// below
+    					} else if (i == 0 && z > 0 && z < solution[0].length) { // top columns between top right and top left
+    						valid[i][z-1]++; 													// left
+    						valid[i][z+1]++; 													// right
+    						valid[i+1][z]++; 													// below
+    					} else if (i == solution.length -1 && z > 0 && z < solution[0].length) { // bottom columns between bottom right and bottom left
+    						valid[i][z-1]++; 													// left
+    						valid[i][z+1]++; 													// right
+    						valid[i-1][z]++; 													// above
+    					} else { // boxes in the middle
+    						valid[i][z-1]++; 													// left
+    						valid[i][z+1]++; 													// right
+    						valid[i+1][z]++; 													// below
+    						valid[i-1][z]++; 													// above
+    					}
+					}
+    			}
+    		}
+    		for (int i = 0; i < valid.length; i ++) {
+    			for (int z = 0; z < valid[0].length; z++) {
+    				if (valid[i][z] %2 == 0) {
+    					return false;
+    				}
+    			}
+    		}
+    		return true;
+    	}
+        return false;
+    }
+
+    /**
+     * this method ensure that add <b>nextValue</b> at the
+     * currentIndex does not make the current solution
+     * impossible. It assumes that the Solution was
+     * built with a series of setNext on which
+     * stillPossible was always true.
+     * @param nextValue
+     *         The boolean value to add at currentIndex
+     * @return true if the board is not known to be
+     * impossible (which does not mean that the board
+     * is possible!)
+     */
+
+     public boolean stillPossible(boolean nextValue) {
+    	for (int m= 0; m < valid.length ; m++) {
+ 			for (int n = 0; n < valid[0].length; n++) {
+ 				valid[m][n] = 0;
+ 			}
+ 		}
+
+    	 for (int i =0; i < valid.length; i ++) { // i is height
+ 			for (int z =0; z< valid.length; z++) {	// z is width
+ 				try{
+	 				if (solution[i][z].equals(true)) {
+	 					valid[i][z]++;
+		    			if (i == 0 && z == solution[0].length -1) { // top right hand corner
+		    				valid[i+1][z]++; 													// below
+		    				valid[i][z-1]++;													 // left
+		    			}else if ( i == 0 && z ==0) {
+		    				valid[i+1][z]++; 													// below
+		    				valid[i][z+1]++; 													// right
+		    			} else if (i == solution.length -1 && z == 0) {// bottom left
+		    				valid[i-1][z]++; 													// above
+		    				valid[i][z+1]++; 													// right
+		    			} else if (i == solution.length-1 && z == solution[0].length -1) { // bottom right
+	 						valid[i-1][z]++; 													// above
+	 						valid[i][z-1]++; 													// left
+	 					} else if (z == 0 && i > 0 && i < solution.length) { // rows between top left and bottom left
+	 						valid[i-1][z]++; 													// above
+	 						valid[i][z+1]++; 													// right
+	 						valid[i+1][z]++; 													// below
+	 					} else if (z == solution[0].length -1 && i > 0 && i < solution.length) { // rows between top right and bottom right
+	 						valid[i-1][z]++; 													// above
+	 						valid[i][z-1]++; 													// left
+	 						valid[i+1][z]++; 													// below
+	 					} else if (i == 0 && z > 0 && z < solution[0].length) { // top columns between top right and top left
+	 						valid[i][z-1]++; 													// left
+	 						valid[i][z+1]++; 													// right
+	 						valid[i+1][z]++; 													// below
+	 					} else if (i == solution.length -1 && z > 0 && z < solution[0].length) { // bottom columns between bottom right and bottom left
+	 						valid[i][z-1]++; 													// left
+	 						valid[i][z+1]++; 													// right
+	 						valid[i-1][z]++; 													// above
+	 					} else { // boxes in the middle
+	 						valid[i][z-1]++; 													// left
+	 						valid[i][z+1]++; 													// right
+	 						valid[i+1][z]++; 													// below
+	 						valid[i-1][z]++; 													// above
+	 					}
+	 				}
+ 				}
+ 			catch(Exception x) {
+ 			}
+ 			}
+    	 }
+    	 if (nextValue == true) {
+    		 valid[Height-1][Width]++;
+    		 if (valid[Height-1][Width] % 2 == 0) {
+    			 valid[Height-1][Width]--;
+    			 for (int m= 0; m < valid.length ; m++) {
+    		 			for (int n = 0; n < valid[0].length; n++) {
+    		 				valid[m][n] = 0;
+    		 			}
+    		 		}
+    			 for (int m= 0; m < valid.length ; m++) {
+    		 			for (int n = 0; n < valid[0].length; n++) {
+    		 				valid[m][n] = 0;
+    		 			}
+    		 		}
+    			 return false;
+    		 }
+    		 for (int m= 0; m < valid.length ; m++) {
+    	 			for (int n = 0; n < valid[0].length; n++) {
+    	 				valid[m][n] = 0;
+    	 			}
+    	 		}
+    			 return true;
+    	 } else {
+    		 if (valid[Height-1][Width] % 2 == 0) {
+    			 for (int m= 0; m < valid.length ; m++) {
+    		 			for (int n = 0; n < valid[0].length; n++) {
+    		 				valid[m][n] = 0;
+    		 			}
+    		 		}
+    			 return false;
+    		 }
+    		 for (int m= 0; m < valid.length ; m++) {
+    	 			for (int n = 0; n < valid[0].length; n++) {
+    	 				valid[m][n] = 0;
+    	 			}
+    	 		}
+    		 	return true;
+    	 }
+     }
+
+    /**
+     * returns a string representation of the solution
+     *
+     * @return
+     *      the string representation
+     */
+    public String toString() {
+    	System.out.print("[");
+    	for (int i = 0 ; i < solution.length; i++) {
+    		System.out.print("[");
+    		for (int z= 0 ; z< solution[0].length; z++) {
+    			System.out.print(solution[i][z]);
+    			if (z != solution[0].length -1) {
+    				System.out.print(",");
+    			} else {
+    				System.out.print("]");
+    			}
+    		}
+    		if (i != solution.length-1) {
+    			System.out.println(",");
+    		}else {
+    			System.out.println("]");
+    		}
+    	}
+    	return "";
+    }
+
+}
